@@ -26,7 +26,7 @@ const reviewRoutes = require('./routes/reviews');
 //const MongoStore = require('connect-mongo');
 //const { getMaxListeners } = require('process');
 const MongoDBStore = require('connect-mongodb-session')(session);
-const dbUrl = 'mongodb://127.0.0.1:27017/yelp-camp' // process.env.DB_URL;
+const dbUrl = process.env.DB_URL || 'mongodb://127.0.0.1:27017/yelp-camp' // process.env.DB_URL;
 
 mongoose.connect(dbUrl, {
     useUnifiedTopology: true,
@@ -52,10 +52,10 @@ app.use(mongoSanitize())
 
 app.use(express.static(path.join(__dirname, 'public')))
 
-
+const secret = process.env.SECRET || 'thisshouldbeasecret!'
 const store = new MongoDBStore({
     url: dbUrl,
-    secret: 'thisshouldbeasecret!',
+    secret,
     touchAfter: 24 * 60 * 60
 
 });
@@ -66,7 +66,7 @@ store.on("error", function (e) {
 const sessionConfig = {
     store: store,
     name: 'session',
-    secret: 'thisshouldbeabettersecret',
+    secret,
     resave: false,
     saveUninitialized: true,
     cookie: {
