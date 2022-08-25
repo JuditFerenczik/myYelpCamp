@@ -16,11 +16,13 @@ const methodOverride = require('method-override');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const User = require('./models/user');
+const mongoSanitize = require('express-mongo-sanitize');
 
 const userRoutes = require('./routes/users');
 const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
 const { getMaxListeners } = require('process');
+const { contentSecurityPolicy } = require('helmet');
 
 mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp', {
     useUnifiedTopology: true,
@@ -41,7 +43,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'))
 app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'));
-
+app.use(mongoSanitize())
 
 
 app.use(express.static(path.join(__dirname, 'public')))
@@ -52,6 +54,7 @@ const sessionConfig = {
     saveUninitialized: true,
     cookie: {
         httpOnly: true,
+        //secure:true, localhost not https would break here
         expires: Date.now() + 1000 * 60 * 60 * 24 * 70, //milisec
         maxAge: 1000 * 60 * 60 * 24 * 70
 

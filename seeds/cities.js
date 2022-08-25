@@ -3483,7 +3483,7 @@ module.exports = [
         state: "Michigan",
     },
     {
-        city: "O'Fallon",
+        city: "OFallon",
         growth_from_2000_to_2013: "62.6%",
         latitude: 38.8106075,
         longitude: -90.69984769999999,
