@@ -3,6 +3,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 console.log(process.env.SECRET)
+
 const express = require('express');
 const path = require('path')
 const mongoose = require('mongoose');
@@ -22,10 +23,12 @@ const mongoSanitize = require('express-mongo-sanitize');
 const userRoutes = require('./routes/users');
 const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
-const { getMaxListeners } = require('process');
-const { contentSecurityPolicy } = require('helmet');
+//const MongoStore = require('connect-mongo');
+//const { getMaxListeners } = require('process');
+const MongoDBStore = require('connect-mongodb-session')(session);
+const dbUrl = 'mongodb://127.0.0.1:27017/yelp-camp' // process.env.DB_URL;
 
-mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp', {
+mongoose.connect(dbUrl, {
     useUnifiedTopology: true,
     useNewUrlParser: true,
     //useCreateIndex= true
@@ -49,7 +52,20 @@ app.use(mongoSanitize())
 
 app.use(express.static(path.join(__dirname, 'public')))
 
+
+const store = new MongoDBStore({
+    url: dbUrl,
+    secret: 'thisshouldbeasecret!',
+    touchAfter: 24 * 60 * 60
+
+});
+
+store.on("error", function (e) {
+    console.log("Session store error", e)
+})
 const sessionConfig = {
+    store: store,
+    name: 'session',
     secret: 'thisshouldbeabettersecret',
     resave: false,
     saveUninitialized: true,
